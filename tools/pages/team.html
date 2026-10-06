@@ -1,0 +1,150 @@
+<section class="hero" style="padding-bottom:36px">
+  <div class="wrap">
+    <h1 style="max-width:16ch">A two-person core team, with collaborators around it</h1>
+    <p class="lede">CrowMQ is led from the Department of Computer and Systems Sciences at Stockholm
+    University, and carried out by a focused team of the principal investigator and one
+    postdoctoral researcher, supported by scientific collaboration in edge intelligence,
+    distributed systems and scalable computing.</p>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="note" style="margin-bottom:52px"><strong>Check these details before publishing.</strong>
+    Names and affiliations are taken from the research plan. Add photographs by replacing the
+    <code>&lt;div class="avatar"&gt;</code> block with
+    <code>&lt;img class="avatar" src="assets/img/people/name.jpg" alt=""&gt;</code> and dropping a
+    square image of 320&nbsp;px or more into that folder. Confirm with each named collaborator
+    that they are happy to appear here.</p>
+
+    <div class="band-head">
+      {{TICK}}
+      <h2>Core team</h2>
+    </div>
+    <div class="people">
+      <!-- Swap for a photo: <img class="avatar" src="assets/img/people/praveen.jpg" alt=""> -->
+      <div class="person">
+        <div class="avatar">{{MARK}}</div>
+        <h3>Praveen Kumar Donta</h3>
+        <p class="role">principal investigator</p>
+        <p>Scientific leadership and supervision, protocol and system design, experimental strategy
+        and project coordination.</p>
+        <p>Department of Computer and Systems Sciences, Stockholm University.</p>
+      </div>
+      <div class="person" id="position">
+        <div class="avatar">{{MARK}}</div>
+        <h3>Postdoctoral researcher</h3>
+        <p class="role">to be recruited</p>
+        <p>Primary researcher across all four tasks: protocol design, the Active Inference
+        controller, the CrowMQ implementation, benchmarking and validation.</p>
+        <p><a href="mailto:{{CONTACT}}">Enquire about the position</a></p>
+      </div>
+      <div class="person">
+        <div class="avatar">{{MARK}}</div>
+        <h3>Computing infrastructure</h3>
+        <p class="role">departmental · NAISS · TU Wien</p>
+        <p>GPU-enabled systems for implementation, distributed experiments and validation,
+        including large-scale distributed training and inference runs.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band band-alt">
+  <div class="wrap">
+    <div class="band-head">
+      {{TICK}}
+      <h2>Scientific collaboration</h2>
+      <p>Collaboration extends the project's expertise and provides independent technical feedback,
+      experimental validation and international dissemination.</p>
+    </div>
+    <div class="people">
+      <div class="person">
+        <div class="avatar">{{MARK}}</div>
+        <h3>Susanna Pirttikangas</h3>
+        <p class="role">AMD Silo AI</p>
+        <p>Edge intelligence and applied AI systems.</p>
+      </div>
+      <div class="person">
+        <div class="avatar">{{MARK}}</div>
+        <h3>Sasu Tarkoma</h3>
+        <p class="role">University of Helsinki</p>
+        <p>Distributed systems and networked computing.</p>
+      </div>
+      <div class="person">
+        <div class="avatar">{{MARK}}</div>
+        <h3>Schahram Dustdar</h3>
+        <p class="role">Distributed Systems Group, TU Wien</p>
+        <p>Distributed systems, the edge–cloud continuum and scalable computing.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap split">
+    <div>
+      {{TICK}}
+      <h2>How to get involved</h2>
+      <p>The most useful contributions at this stage are not code.</p>
+      <ul>
+        <li><strong>Review the protocol.</strong> Ambiguities found before the specification
+        freezes are cheap; afterwards they are permanent.</li>
+        <li><strong>Share a workload.</strong> A description of real agentic traffic — message
+        mixes, dependency patterns, arrival behaviour — makes the benchmark environment
+        representative rather than plausible.</li>
+        <li><strong>Tell us where adaptation would not help.</strong> Identifying the cases where
+        deterministic handling wins is an explicit project goal.</li>
+      </ul>
+      <div class="btn-row">
+        <a class="btn btn-primary" href="mailto:{{CONTACT}}">{{CONTACT}}</a>
+        <a class="btn" href="{{GITHUB}}">Source repository</a>
+      </div>
+    </div>
+    <div>
+      {{TICK}}
+      <h2>Dissemination</h2>
+      <p>Dissemination, intellectual-property assessment and standardisation activities run across
+      the whole project rather than being saved for the end.</p>
+      <p>Results will be assessed for the most appropriate exploitation pathway, balancing
+      scientific publication against opportunities for industrial adoption and interoperability.</p>
+      <ul class="tags" style="margin-top:20px">
+        <li>protocol specification</li>
+        <li>reference implementation</li>
+        <li>benchmark environment</li>
+        <li>design guidelines</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="band band-alt" id="references">
+  <div class="wrap">
+    <div class="band-head">
+      {{TICK}}
+      <h2>References</h2>
+      <p>The sources the research plan builds on.</p>
+    </div>
+    <ol class="refs">
+      <li>F. Wu. <em>Distributed AI Systems: A Practical Guide to Building Scalable Training,
+      Inference, and Serving Systems for Production AI.</em> Packt Publishing, 2026.</li>
+      <li>NVIDIA. NVIDIA Collective Communications Library (NCCL) documentation.</li>
+      <li>MPI Forum. MPI: A Message-Passing Interface Standard, version 5.0, 2025.</li>
+      <li>gRPC Authors. gRPC documentation: performance best practices.</li>
+      <li>OASIS. MQTT version 5.0. Technical report, 2019.</li>
+      <li>OASIS. Advanced Message Queuing Protocol (AMQP) version 1.0. Technical report, 2012.</li>
+      <li>Model Context Protocol. Specification: transports.</li>
+      <li>A2A Protocol Project. Agent2Agent protocol specification.</li>
+      <li>R. Smith, K. J. Friston and C. J. Whyte. A step-by-step tutorial on active inference and
+      its application to empirical data. <em>Journal of Mathematical Psychology</em>, 107:102632,
+      2022.</li>
+      <li>B. Sedlak, V. Casamayor Pujol, A. Morichetta, P. K. Donta and S. Dustdar. Adaptive stream
+      processing on edge devices through active inference. <em>Evolving Systems</em>, 16(4):130,
+      2025.</li>
+      <li>J. Pearl. <em>Probabilistic Reasoning in Intelligent Systems: Networks of Plausible
+      Inference.</em> Morgan Kaufmann, 1988.</li>
+      <li>National Academic Infrastructure for Supercomputing in Sweden (NAISS). About NAISS,
+      2026.</li>
+    </ol>
+  </div>
+</section>

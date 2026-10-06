@@ -1,0 +1,197 @@
+<section class="hero" style="padding-bottom:36px">
+  <div class="wrap">
+    <h1 style="max-width:16ch">A light message path with a control loop beside it</h1>
+    <p class="lede">The architecture combines a lightweight data plane with a bounded adaptive
+    control loop. Routine publication, queue access, subscriber matching and delivery execute
+    according to the currently active policy, without running a full inference procedure for every
+    individual message.</p>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <div class="panel">
+      <p class="panel-title">figure 2 · the CrowMQ broker</p>
+      {{FIG2}}
+      <p class="panel-cap">Publishers attach an envelope and publish through the input interface.
+      The data plane admits, queues and delivers. The control plane observes what is happening,
+      infers the state of the communication process, and issues control signals that change how the
+      queues behave.</p>
+    </div>
+  </div>
+</section>
+
+<section class="band band-alt">
+  <div class="wrap">
+    <div class="band-head">
+      {{TICK}}
+      <h2>The data plane</h2>
+      <p>The high-frequency path. Everything here runs per message, so it has to stay cheap.</p>
+    </div>
+    <div class="cols cols-4">
+      <div class="feat">
+        <span class="feat-key">01</span>
+        <h3>Admission and validation</h3>
+        <p>The envelope is checked against protocol rules and topic configuration before the
+        message is allowed into a queue.</p>
+      </div>
+      <div class="feat">
+        <span class="feat-key">02</span>
+        <h3>Adaptive message queues</h3>
+        <p>One per topic. The broker holds the state required to track message progression and
+        dependencies until delivery or expiry, rather than applying one fixed handling rule to all
+        traffic.</p>
+      </div>
+      <div class="feat">
+        <span class="feat-key">03</span>
+        <h3>Delivery engine</h3>
+        <p>Matches messages to subscribers and enforces the active policy on ordering, batching and
+        deferral.</p>
+      </div>
+      <div class="feat">
+        <span class="feat-key">04</span>
+        <h3>Acknowledgement and retry</h3>
+        <p>Settles deliveries, schedules redelivery where the envelope requires it, and reports
+        outcomes back into the observation layer.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap split">
+    <div>
+      {{TICK}}
+      <h2>The control plane</h2>
+      <p>Three components, each with a narrow job.</p>
+      <dl class="deflist">
+        <dt>Runtime observation layer</dt>
+        <dd>Characterises the current communication environment from queue state, arrivals,
+        deliveries, resource usage and subscriber state.</dd>
+        <dt>Active Inference controller</dt>
+        <dd>Maintains beliefs about conditions that cannot be measured directly, evaluates the
+        permitted actions, and selects a policy.</dd>
+        <dt>Policy manager</dt>
+        <dd>Enforces protocol constraints, holds the safety fallback, and governs how quickly
+        adaptation is allowed to happen.</dd>
+      </dl>
+      <div class="btn-row">
+        <a class="btn" href="adaptive.html">Inside the controller</a>
+      </div>
+    </div>
+    <div>
+      {{TICK}}
+      <h2>What the observation layer watches</h2>
+      <p>Message metadata expresses what a message requires. Runtime telemetry describes whether
+      the system can currently satisfy it. The two are only useful together.</p>
+      <ul class="tags" style="margin-bottom:20px">
+        <li>queue occupancy</li>
+        <li>message age</li>
+        <li>waiting time</li>
+        <li>arrival rate</li>
+        <li>service rate</li>
+        <li>payload size</li>
+        <li>acknowledgement delay</li>
+        <li>retry behaviour</li>
+        <li>subscriber availability</li>
+        <li>delivery success</li>
+        <li>network capacity</li>
+        <li>broker CPU</li>
+        <li>memory utilisation</li>
+      </ul>
+      <p class="muted">Observed jointly, these expose situations a static queue configuration
+      cannot represent: persistent queue growth, impending deadline violations, subscriber
+      unavailability, changing resource pressure, and congestion that is either temporary or
+      sustained.</p>
+    </div>
+  </div>
+</section>
+
+<section class="band band-alt">
+  <div class="wrap">
+    <div class="band-head">
+      {{TICK}}
+      <h2>Why the two paths are separated</h2>
+      <p>A decision mechanism that costs more than the communication it improves is not an
+      improvement. The separation between the message path and the control path is what keeps the
+      adaptation affordable.</p>
+    </div>
+    <div class="cols cols-3">
+      <div class="feat">
+        <h3>Per-message work stays small</h3>
+        <p>Publication, queue access, matching and delivery follow the active policy. No inference
+        runs on the critical path of an individual message.</p>
+      </div>
+      <div class="feat">
+        <h3>Control runs on its own clock</h3>
+        <p>The controller aggregates observations over configurable windows, updates its beliefs,
+        and reconsiders the active policy when the observed state has changed enough to justify
+        it.</p>
+      </div>
+      <div class="feat">
+        <h3>Different situations, different timescales</h3>
+        <p>Stable traffic continues with minimal control activity. Rapid queue growth, changing
+        subscriber availability, resource pressure or repeated service-level violations trigger
+        earlier reconsideration.</p>
+      </div>
+    </div>
+    <p class="note" style="margin-top:44px"><strong>The cost of inference is itself monitored as
+    part of the resource state</strong>, so communication adaptation stays beneficial instead of
+    becoming a new broker bottleneck.</p>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap split">
+    <div>
+      {{TICK}}
+      <h2>Persistent storage</h2>
+      <p>Four things are kept, and each has a consumer.</p>
+      <dl class="deflist">
+        <dt>Queue and metadata</dt>
+        <dd>Message state, dependencies, supersession and expiry — what the data plane needs to
+        resume correctly.</dd>
+        <dt>Runtime statistics</dt>
+        <dd>Telemetry and history, which give the controller something to infer from rather than a
+        single instantaneous reading.</dd>
+        <dt>Adaptation logs</dt>
+        <dd>Decisions, the observations behind them, and the outcomes that followed.</dd>
+        <dt>Configuration</dt>
+        <dd>Preferences, constraints and protocol rules, including the operating region an
+        application wants to favour.</dd>
+      </dl>
+    </div>
+    <div>
+      {{TICK}}
+      <h2>Safety and traceability</h2>
+      <p>Runtime adaptation stays subject to explicit protocol constraints and conservative
+      operating rules.</p>
+      <ul>
+        <li>An action is applied only if it belongs to the permitted action space and satisfies the
+        configured delivery, security and resource constraints.</li>
+        <li>Insufficient evidence, high uncertainty or an exhausted processing budget all fall back
+        to a valid deterministic policy.</li>
+        <li>Each significant adaptation records the observations, the inferred communication
+        condition, the selected action and the observed outcome.</li>
+      </ul>
+      <p class="muted">That record provides a traceable relationship between system state and
+      protocol behaviour, and lets the effectiveness of individual decisions be examined
+      experimentally rather than argued about.</p>
+    </div>
+  </div>
+</section>
+
+<section class="band band-ink">
+  <div class="wrap">
+    {{TICK}}
+    <h2>The prototype</h2>
+    <p class="lede">A reference implementation will instantiate the specification and provide the
+    experimental platform: protocol implementation, publisher and subscriber libraries, reference
+    broker, adaptive message queues, runtime telemetry and the Active-Inference control mechanism,
+    integrated into one system.</p>
+    <div class="btn-row">
+      <a class="btn btn-primary" href="plan.html">Delivery schedule</a>
+      <a class="btn" href="adaptive.html">Adaptive control</a>
+    </div>
+  </div>
+</section>

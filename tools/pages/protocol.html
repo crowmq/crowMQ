@@ -1,0 +1,163 @@
+<section class="hero" style="padding-bottom:36px">
+  <div class="wrap">
+    <h1 style="max-width:17ch">The protocol: context in the envelope, limits on the broker</h1>
+    <p class="lede">CrowMQ follows the publish–subscribe model, so publishers and subscribers stay
+    decoupled through topics and broker-mediated delivery. What it adds is a compact envelope
+    describing the communication properties of each message, and a finite list of things the broker
+    is permitted to do with that information.</p>
+    <p class="hero-facts">
+      <span><i></i>publish–subscribe</span>
+      <span><i></i>envelope + payload</span>
+      <span><i></i>bounded action space</span>
+      <span><i></i>specification due at month 4</span>
+    </p>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="note" style="margin-bottom:52px"><strong>This page describes the protocol as
+    planned.</strong> The normative specification is deliverable D1, due at milestone MS1 in month
+    four of the project. Field names and encodings here are indicative and will be replaced by the
+    specification once it lands.</p>
+
+    <div class="band-head">
+      {{TICK}}
+      <h2>The message envelope</h2>
+      <p>Each message contains its application payload together with the envelope below. These
+      fields describe the communication properties of a message rather than its application
+      meaning, which is what allows the broker to manage heterogeneous agent traffic without
+      interpreting prompts or reasoning about goals.</p>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Field</th><th>Describes</th><th>What it lets the broker do</th></tr></thead>
+        <tbody>
+          <tr><td><span class="id">identity</span></td><td>A stable identifier for this message.</td><td>Track progression, detect duplicates, correlate acknowledgements.</td></tr>
+          <tr><td><span class="id">priority</span></td><td>Relative urgency within the topic.</td><td>Order delivery when capacity is contended.</td></tr>
+          <tr><td><span class="id">validity</span></td><td>A deadline or validity period after which the message is no longer useful.</td><td>Expire stale traffic instead of delivering work nobody is waiting for.</td></tr>
+          <tr><td><span class="id">task class</span></td><td>The kind of traffic: task request, tool output, intermediate result, verification, memory update, coordination signal.</td><td>Batch compatible messages and apply class-appropriate handling.</td></tr>
+          <tr><td><span class="id">dependencies</span></td><td>That another task is waiting on this delivery.</td><td>Promote messages that are blocking downstream work.</td></tr>
+          <tr><td><span class="id">supersession</span></td><td>The message this one replaces.</td><td>Drop an obsolete update once its replacement has entered the queue.</td></tr>
+          <tr><td><span class="id">delivery</span></td><td>The reliability and acknowledgement the sender requires.</td><td>Choose retry behaviour without guessing.</td></tr>
+          <tr><td><span class="id">provenance</span></td><td>Where the message came from and what produced it.</td><td>Attribute behaviour during analysis and keep adaptation traceable.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="cols cols-3" style="margin-top:56px">
+      <div class="feat">
+        <span class="feat-key">dependency</span>
+        <h3>A verification result</h3>
+        <p>It can declare that another task is waiting for its delivery, so the broker knows the
+        message is on a critical path without being told what the verification means.</p>
+      </div>
+      <div class="feat">
+        <span class="feat-key">supersession</span>
+        <h3>A revised state update</h3>
+        <p>It can identify the message it supersedes. If the earlier one is still queued, sending
+        both is wasted bandwidth and a chance for a subscriber to act on stale state.</p>
+      </div>
+      <div class="feat">
+        <span class="feat-key">validity</span>
+        <h3>A coordination signal</h3>
+        <p>It can expose its validity period. Once that period has passed, delivering it consumes
+        capacity to produce an answer that is already wrong.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band band-alt">
+  <div class="wrap">
+    <div class="band-head">
+      {{TICK}}
+      <h2>The action space</h2>
+      <p>CrowMQ exposes a finite set of protocol-defined actions. A candidate action is applied
+      only if it belongs to this space and satisfies the configured delivery, security and resource
+      constraints.</p>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Action</th><th>Applied when</th><th>Effect</th></tr></thead>
+        <tbody>
+          <tr><td><span class="id">prioritise</span></td><td>A deadline is at risk, or the message blocks a dependent task.</td><td>The message moves ahead of lower-priority traffic in its queue.</td></tr>
+          <tr><td><span class="id">defer</span></td><td>Capacity is contended and this traffic can tolerate waiting.</td><td>Delivery is postponed rather than dropped, freeing room for urgent work.</td></tr>
+          <tr><td><span class="id">batch</span></td><td>Bandwidth is constrained and several messages are compatible.</td><td>Aggregation reduces per-message overhead at the cost of some waiting time.</td></tr>
+          <tr><td><span class="id">expire</span></td><td>Validity has passed before delivery.</td><td>The message is removed and the sender is informed.</td></tr>
+          <tr><td><span class="id">replace</span></td><td>A message that explicitly supersedes a queued one has been admitted.</td><td>The superseded message is removed before it can be delivered.</td></tr>
+          <tr><td><span class="id">suppress</span></td><td>A transmission is redundant.</td><td>The duplicate is not sent, and the reason is recorded.</td></tr>
+          <tr><td><span class="id">buffer</span></td><td>A subscriber is unavailable but expected to recover shortly.</td><td>Traffic is held rather than failed, within the configured memory budget.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="muted small" style="margin-top:22px">Every one of these is a decision about
+    communication management. None of them changes what a message says.</p>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap split">
+    <div>
+      {{TICK}}
+      <h2>Delivery and acknowledgement</h2>
+      <p>After validation and admission the broker maintains the state needed to track message
+      progression and dependencies until delivery or expiry.</p>
+      <ul>
+        <li>Subscribers are matched per topic, with one delivery per consumer group.</li>
+        <li>Acknowledgement behaviour is itself an observation: acknowledgement delay and retry
+        behaviour feed the runtime state that drives adaptation.</li>
+        <li>A message that expires before delivery is removed and reported rather than retried.</li>
+        <li>Every significant adaptation retains the observations, the inferred condition, the
+        selected action and the outcome.</li>
+      </ul>
+      <p class="muted">That last point is what makes the behaviour examinable. Without a record
+      linking system state to protocol behaviour, an adaptive broker is only a broker that
+      sometimes behaves differently for reasons nobody can reconstruct.</p>
+    </div>
+    <div>
+      {{TICK}}
+      <h2>The boundary</h2>
+      <p>The protocol does not permit the broker to:</p>
+      <ul>
+        <li>change an agent's objective;</li>
+        <li>modify the semantic content of a message;</li>
+        <li>assume the reasoning responsibilities of publishers and subscribers;</li>
+        <li>interpret prompts or reason about application goals.</li>
+      </ul>
+      <p>When the controller lacks sufficient evidence, when uncertainty stays high, or when a
+      decision cannot be completed inside its processing budget, CrowMQ continues with a valid
+      deterministic policy. An uncertain decision never gets to affect message delivery.</p>
+      <div class="btn-row">
+        <a class="btn" href="adaptive.html">How decisions are made</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band band-alt">
+  <div class="wrap">
+    <div class="band-head">
+      {{TICK}}
+      <h2>Where it sits alongside what you already run</h2>
+      <p>CrowMQ complements existing messaging and agent-interoperability standards rather than
+      competing with them. It addresses how messages should be managed when their urgency,
+      dependency, validity and communication value change at runtime.</p>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Layer</th><th>Examples</th><th>Handles</th><th>Relationship to CrowMQ</th></tr></thead>
+        <tbody>
+          <tr><td>Collective communication</td><td>NCCL, MPI</td><td>Tensor exchange between distributed workers</td><td>Stays underneath; CrowMQ does not replace collectives.</td></tr>
+          <tr><td>Remote procedure call</td><td>gRPC</td><td>Request and response between services</td><td>Complementary transport for point-to-point calls.</td></tr>
+          <tr><td>Message delivery</td><td>MQTT, AMQP</td><td>Delivery, flow control, reliability, QoS</td><td>Closest relatives. CrowMQ adds runtime-adaptive handling on top of similar primitives.</td></tr>
+          <tr><td>Agent interoperability</td><td>MCP, A2A</td><td>How agents and tools describe and call each other</td><td>CrowMQ carries this traffic; it does not define agent semantics.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="btn-row">
+      <a class="btn btn-primary" href="architecture.html">How the broker is built</a>
+      <a class="btn" href="plan.html">When the specification lands</a>
+    </div>
+  </div>
+</section>

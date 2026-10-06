@@ -1,0 +1,259 @@
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <h1>An intelligent messaging protocol for agentic systems</h1>
+      <p class="lede">CrowMQ is a broker-centric publish–subscribe protocol in which the message
+      queue becomes a first-class adaptive component. Messages carry the communication context an
+      agentic workload actually depends on, and the broker is given a bounded set of decisions it
+      may make about how that traffic is handled.</p>
+      <div class="btn-row">
+        <a class="btn btn-primary" href="protocol.html">Read the protocol</a>
+        <a class="btn" href="architecture.html">See the architecture</a>
+        <a class="btn" href="plan.html">Research plan</a>
+      </div>
+      <p class="hero-facts">
+        <span><i></i>Stockholm University · DSV</span>
+        <span><i></i>12-month plan</span>
+        <span><i></i>Active Inference control</span>
+      </p>
+    </div>
+    <div class="hero-art">{{LIGATURE}}</div>
+  </div>
+</section>
+
+<section class="band band-alt">
+  <div class="wrap">
+    <div class="band-head">
+      {{TICK}}
+      <h2>The bottleneck has moved from computation to communication</h2>
+      <p>A 70-billion-parameter model needs roughly 280&nbsp;GB just to hold its weights in FP32,
+      or 140&nbsp;GB in BF16 — already beyond a single 80&nbsp;GB accelerator. At the
+      trillion-parameter scale weight storage alone approaches 4&nbsp;TB. Training is heavier
+      still: FP32 training of Llama-2-70B with Adam is estimated at about 1.38&nbsp;TB once
+      gradients, optimiser states and activations are counted.</p>
+    </div>
+    <div class="panel">
+      <p class="panel-title">figure 1 · model weight memory against single-GPU capacity, 2020–2026</p>
+      {{FIG1}}
+      <p class="panel-cap">Representative figures on a logarithmic scale. Model memory follows an
+      exponential trend while accelerator capacity grows roughly linearly, so the gap between what
+      a model needs and what one device holds widens every year.</p>
+    </div>
+    <div class="cols cols-3" style="margin-top:56px">
+      <div class="feat">
+        <h3>Work no longer fits on one device</h3>
+        <p>Training and inference are forced across multiple accelerators, not as an optimisation
+        but as a precondition for running at all.</p>
+      </div>
+      <div class="feat">
+        <h3>So the devices must talk constantly</h3>
+        <p>Participating devices continuously exchange gradients, parameters, activations,
+        intermediate states and control information.</p>
+      </div>
+      <div class="feat">
+        <h3>And that traffic becomes the limit</h3>
+        <p>Part of the scalability problem shifts away from computation and memory and onto
+        communication efficiency.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap split">
+    <div>
+      {{TICK}}
+      <h2>What the stack looks like today</h2>
+      <p>Distributed AI systems rely on a layered set of communication mechanisms, each designed
+      for a specific abstraction and pattern.</p>
+      <dl class="deflist">
+        <dt>Accelerator and process level</dt>
+        <dd>NCCL and MPI provide collective operations — AllReduce, AllGather, ReduceScatter,
+        All-to-All — for exchanging tensors between distributed workers.</dd>
+        <dt>Service level</dt>
+        <dd>gRPC carries remote procedure calls; MQTT and AMQP provide message delivery, flow
+        control, reliability and delivery guarantees.</dd>
+        <dt>Agent level</dt>
+        <dd>MCP and A2A introduce interoperability for AI applications and agents, but their remote
+        communication is still built on web-oriented mechanisms: JSON-RPC over streamable HTTP,
+        HTTP+JSON/REST, or gRPC.</dd>
+      </dl>
+    </div>
+    <div>
+      {{TICK}}
+      <h2>What that layering costs</h2>
+      <p>Each layer is reasonable on its own. Stacked, they accumulate overhead that nobody owns.</p>
+      <ul class="tags" style="margin-bottom:22px">
+        <li>synchronisation</li>
+        <li>serialisation</li>
+        <li>protocol framing</li>
+        <li>acknowledgement</li>
+        <li>connection management</li>
+        <li>intermediary processing</li>
+        <li>control traffic</li>
+      </ul>
+      <p>The deeper problem is not overhead but separation. Communication decisions sit apart from
+      AI workload semantics and from runtime infrastructure conditions, so a broker cannot jointly
+      adapt message representation, priority, routing and delivery to workload urgency, resource
+      availability, network conditions and communication cost.</p>
+      <p class="muted">Existing systems do offer QoS, message expiry, priority, acknowledgements and
+      metadata. Those mechanisms are governed by predefined protocol or application policy, not by
+      the runtime context of an agentic workflow.</p>
+    </div>
+  </div>
+</section>
+
+<section class="band band-alt">
+  <div class="wrap">
+    <div class="band-head">
+      {{TICK}}
+      <h2>What CrowMQ changes</h2>
+      <p>The broker stops being a storage and forwarding mechanism governed by fixed rules, and
+      becomes a bounded intelligent queue that adapts message handling to the communication context
+      it can actually observe.</p>
+    </div>
+    <div class="cols cols-3">
+      <div class="feat">
+        <span class="feat-key">message context</span>
+        <h3>Agent-aware semantics</h3>
+        <p>Every message carries a compact envelope describing urgency, task class, dependency,
+        validity, replacement relationships and delivery requirements — the communication
+        properties of a message, never its application meaning.</p>
+      </div>
+      <div class="feat">
+        <span class="feat-key">runtime state</span>
+        <h3>Observation of real conditions</h3>
+        <p>Queue occupancy, message age, subscriber availability, acknowledgement behaviour and
+        network state describe whether the system can currently satisfy what a message asks for.</p>
+      </div>
+      <div class="feat">
+        <span class="feat-key">bounded control</span>
+        <h3>A finite set of decisions</h3>
+        <p>Prioritisation, stale-message expiry, superseded-message replacement, duplicate
+        suppression, adaptive buffering and congestion-aware delivery — and nothing beyond that.</p>
+      </div>
+    </div>
+    <p class="note" style="margin-top:44px"><strong>CrowMQ does not replace agent reasoning or
+    existing protocols.</strong> It provides an interoperable messaging layer that makes
+    broker-mediated communication more timely, resource-aware, explainable and efficient, while
+    application reasoning, agent goals and message content stay outside the broker's authority.</p>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap split">
+    <div>
+      {{TICK}}
+      <h2>What the broker may do</h2>
+      <p>These actions form the controllable part of the protocol. They are intentionally finite,
+      because intelligence is applied where queueing delay, bandwidth consumption, redundancy and
+      resource pressure actually arise.</p>
+      <ul>
+        <li>Prioritise time-critical messages</li>
+        <li>Temporarily defer less urgent traffic</li>
+        <li>Batch compatible messages together</li>
+        <li>Remove messages whose validity has expired</li>
+        <li>Replace explicitly superseded updates</li>
+        <li>Suppress redundant transmissions</li>
+        <li>Adapt buffering and delivery behaviour</li>
+      </ul>
+      <div class="btn-row">
+        <a class="btn btn-primary" href="protocol.html">The action space in full</a>
+      </div>
+    </div>
+    <div>
+      {{TICK}}
+      <h2>What it may not do</h2>
+      <p>The boundary matters as much as the capability. Without it, communication intelligence
+      turns into an unbounded autonomous agent sitting in the middle of the network.</p>
+      <ul>
+        <li>Change an agent's objective</li>
+        <li>Modify the semantic content of a message</li>
+        <li>Assume the reasoning responsibilities of publishers or subscribers</li>
+        <li>Interpret prompts or reason about application goals</li>
+      </ul>
+      <p class="muted">The Markov blanket gives this separation a formal shape: it defines exactly
+      what the controller may observe and what it may influence, and everything else stays
+      outside.</p>
+      <div class="btn-row">
+        <a class="btn" href="adaptive.html">How the boundary is drawn</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band band-alt">
+  <div class="wrap">
+    <div class="band-head">
+      {{TICK}}
+      <h2>Three levels, kept apart on purpose</h2>
+      <p>The separation between protocol semantics, message execution and adaptive control is
+      central to the design. It lets communication intelligence influence how messages are handled
+      without moving application-level reasoning into the messaging infrastructure.</p>
+    </div>
+    <div class="cols cols-3">
+      <div class="feat">
+        <span class="feat-key">protocol</span>
+        <h3>What can be said</h3>
+        <p>The information and operations required for agent-to-agent publish–subscribe
+        communication, including the envelope and the permitted actions.</p>
+        <p style="margin-top:12px"><a href="protocol.html">Protocol</a></p>
+      </div>
+      <div class="feat">
+        <span class="feat-key">execution</span>
+        <h3>What the broker does</h3>
+        <p>Admission, queueing and delivery on a lightweight message path that does not run an
+        inference procedure for every individual message.</p>
+        <p style="margin-top:12px"><a href="architecture.html">Architecture</a></p>
+      </div>
+      <div class="feat">
+        <span class="feat-key">control</span>
+        <h3>How handling adapts</h3>
+        <p>Runtime observations feed an Active Inference controller that reconsiders the active
+        policy when the observed state changes enough to warrant it.</p>
+        <p style="margin-top:12px"><a href="adaptive.html">Adaptive control</a></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <div class="band-head">
+      {{TICK}}
+      <h2>Five goals across twelve months</h2>
+      <p>Each goal is tied to a concrete deliverable and to indicators that can be measured rather
+      than asserted.</p>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Goal</th><th>What we will do</th><th>Deliverable</th><th>Key indicators</th></tr></thead>
+        <tbody>
+          <tr><td><span class="id">G1</span> Specify</td><td>Define CrowMQ message semantics, queue states and broker actions.</td><td>Protocol and adaptive-queue specification</td><td>Message model; action space; interoperability</td></tr>
+          <tr><td><span class="id">G2</span> Learn</td><td>Develop the Active-Inference-based queue controller.</td><td>Intelligent queue controller</td><td>Decision latency; adaptation time; control overhead</td></tr>
+          <tr><td><span class="id">G3</span> Build</td><td>Implement and integrate the CrowMQ broker prototype.</td><td>Functional proof-of-concept broker</td><td>End-to-end operation; adaptive actions; observability</td></tr>
+          <tr><td><span class="id">G4</span> Benchmark</td><td>Create representative agentic AI communication workloads.</td><td>Workload generator and benchmark environment</td><td>Message diversity; workload variability; reproducibility</td></tr>
+          <tr><td><span class="id">G5</span> Validate</td><td>Compare CrowMQ with conventional queue management.</td><td>Evaluation results and design guidelines</td><td>Latency; throughput; stale traffic; reliability; overhead</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="btn-row">
+      <a class="btn btn-primary" href="plan.html">Tasks, milestones and risks</a>
+    </div>
+  </div>
+</section>
+
+<section class="band band-ink">
+  <div class="wrap">
+    {{TICK}}
+    <h2>Collaboration and contact</h2>
+    <p class="lede">CrowMQ is a research project at the Department of Computer and Systems
+    Sciences, Stockholm University. We are interested in protocol review, representative agentic
+    workloads to test against, and collaboration on evaluation.</p>
+    <div class="btn-row">
+      <a class="btn btn-primary" href="mailto:{{CONTACT}}">Get in touch</a>
+      <a class="btn" href="team.html#position">Postdoctoral position</a>
+      <a class="btn" href="plan.html">Research plan</a>
+    </div>
+  </div>
+</section>

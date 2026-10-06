@@ -1,0 +1,183 @@
+<section class="hero" style="padding-bottom:36px">
+  <div class="wrap">
+    <h1 style="max-width:15ch">Twelve months, four tasks, three milestones</h1>
+    <p class="lede">The project starts with the specification, develops the adaptive control model
+    alongside it, integrates a prototype, and then spends the second half benchmarking under
+    representative agentic workloads. Early experimental feedback is used to refine both the
+    protocol and the control mechanism.</p>
+    <p class="hero-facts">
+      <span><i></i>start: February 2027</span>
+      <span><i></i>duration: 12 months</span>
+      <span><i></i>milestones at M4, M9, M12</span>
+    </p>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <div class="panel">
+      <p class="panel-title">figure 4 · implementation plan</p>
+      {{FIG4}}
+      <p class="panel-cap">Tasks overlap deliberately: the controller is developed while the
+      protocol is still being specified, and benchmarking begins before the prototype is
+      integrated, so that problems surface while there is still time to act on them.</p>
+    </div>
+  </div>
+</section>
+
+<section class="band band-alt">
+  <div class="wrap">
+    <div class="band-head">
+      {{TICK}}
+      <h2>Tasks</h2>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Task</th><th>Months</th><th>Research, implementation and testing</th><th>Output</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="id">T1</span><br>Protocol and system design</td>
+            <td>M1–M4</td>
+            <td>Define the protocol architecture, message envelope, publish–subscribe operations,
+            delivery and acknowledgement semantics, adaptive action space and interoperability
+            requirements. Validate protocol behaviour through representative agent-to-agent
+            communication scenarios.</td>
+            <td><span class="id">D1 / MS1</span><br>Protocol specification and system architecture</td>
+          </tr>
+          <tr>
+            <td><span class="id">T2</span><br>Adaptive communication intelligence</td>
+            <td>M2–M7</td>
+            <td>Develop the adaptive communication model: runtime observations, hidden
+            communication states, Active-Inference-based policy selection, and
+            quality–resource–cost preferences. Test decision accuracy, adaptation behaviour,
+            stability and controller overhead under changing queue and network conditions.</td>
+            <td><span class="id">D2</span><br>Adaptive communication controller</td>
+          </tr>
+          <tr>
+            <td><span class="id">T3</span><br>Prototype and integration</td>
+            <td>M4–M9</td>
+            <td>Implement client libraries, protocol processing, adaptive queues, telemetry,
+            bounded message actions and the control/data-path separation. Module-level testing
+            followed by end-to-end integration and publish–subscribe communication tests.</td>
+            <td><span class="id">D3 / MS2</span><br>Integrated CrowMQ prototype</td>
+          </tr>
+          <tr>
+            <td><span class="id">T4</span><br>Benchmarking and validation</td>
+            <td>M6–M12</td>
+            <td>Develop agentic AI communication benchmarks and evaluate CrowMQ under different
+            message loads, dependencies, subscriber states and network conditions. Run distributed
+            training and inference experiments on departmental, NAISS and TU Wien GPU
+            infrastructure, followed by scalability, stress and comparative performance testing.</td>
+            <td><span class="id">D4</span><br>Benchmark environment<br><br><span class="id">D5 / MS3</span><br>Final evaluation and design guidelines</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="cols cols-3" style="margin-top:48px">
+      <div class="feat">
+        <span class="feat-key">MS1 · month 4</span>
+        <h3>Protocol readiness</h3>
+        <p>The message model, action space and interoperability requirements are specified well
+        enough to implement against.</p>
+      </div>
+      <div class="feat">
+        <span class="feat-key">MS2 · month 9</span>
+        <h3>Integrated system readiness</h3>
+        <p>End-to-end operation, adaptive actions firing, and observability sufficient to explain
+        what the broker did and why.</p>
+      </div>
+      <div class="feat">
+        <span class="feat-key">MS3 · month 12</span>
+        <h3>Large-scale validation complete</h3>
+        <p>Comparative results against conventional queue management, plus design guidelines for
+        when adaptation is worth its cost.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="evaluation">
+  <div class="wrap split">
+    <div>
+      {{TICK}}
+      <h2>How it will be evaluated</h2>
+      <p>Evaluation exposes the protocol to representative agentic AI workloads with varying
+      message sizes, priorities, dependencies, arrival rates, subscriber behaviour, and network and
+      resource conditions.</p>
+      <p>Particular attention goes to two things: the conditions under which adaptation provides
+      measurable benefit, and the cases where conventional deterministic handling remains
+      preferable. A result that maps the second set honestly is as useful as one that expands the
+      first.</p>
+      <p class="muted">Experiments will use departmental computing infrastructure and NAISS
+      resources including GPU-enabled systems, complemented by GPU infrastructure at TU Wien for
+      large-scale distributed training and inference.</p>
+    </div>
+    <div>
+      {{TICK}}
+      <h2>What gets measured</h2>
+      <dl class="deflist">
+        <dt>Communication performance</dt>
+        <dd>Latency and throughput, deadline satisfaction, delivery reliability.</dd>
+        <dt>Queue behaviour</dt>
+        <dd>Queue occupancy, and the volume of stale and redundant traffic that never needed to be
+        sent.</dd>
+        <dt>Resource consumption</dt>
+        <dd>Bandwidth and memory used by communication.</dd>
+        <dt>Cost of the controller</dt>
+        <dd>Adaptation time and the processing overhead the control loop introduces — the number
+        that decides whether any of the rest was worth it.</dd>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<section class="band band-alt">
+  <div class="wrap">
+    <div class="band-head">
+      {{TICK}}
+      <h2>Risks</h2>
+      <p>Probability and consequence are each rated from 1 (low) to 3 (high).</p>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Risk</th><th>P</th><th>C</th><th>Mitigation</th></tr></thead>
+        <tbody>
+          <tr><td>Postdoc recruitment delay</td><td>2</td><td>2</td><td>The PI starts core design work and the schedule is adjusted.</td></tr>
+          <tr><td>Adaptive control adds overhead or instability</td><td>2</td><td>3</td><td>Bounded actions, monitoring, and a deterministic fallback.</td></tr>
+          <tr><td>Limited gains for some workloads</td><td>2</td><td>3</td><td>Test diverse workloads and identify where CrowMQ actually provides benefit.</td></tr>
+          <tr><td>Implementation more complex than expected</td><td>2</td><td>2</td><td>Modular development and incremental testing.</td></tr>
+          <tr><td>Large-scale infrastructure unavailable</td><td>1</td><td>2</td><td>Departmental resources first, then collaborating infrastructure.</td></tr>
+          <tr><td>IPR or publication delay</td><td>1</td><td>2</td><td>Review protectable results before publication or open-source release.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap split">
+    <div>
+      {{TICK}}
+      <h2>What CrowMQ could establish</h2>
+      <p>Beyond the prototype, the project aims to produce reusable protocol abstractions and
+      design principles for bounded communication intelligence: messaging systems that observe
+      runtime conditions, make controlled adaptive decisions under uncertainty, and provide
+      traceable communication behaviour.</p>
+      <p>Its context-aware mechanisms could reduce redundant traffic, improve message timeliness
+      and use network, buffer and computing resources more efficiently across heterogeneous
+      edge–cloud environments.</p>
+    </div>
+    <div>
+      {{TICK}}
+      <h2>Results and access</h2>
+      <p>Results will be managed according to the host university's intellectual-property policies
+      and the terms of the funding agreement. Each result will be assessed for the most appropriate
+      exploitation pathway — intellectual-property protection, open-source release, or protocol
+      standardisation — balancing scientific dissemination against industrial adoption and
+      interoperability.</p>
+      <p class="note"><strong>Decide and state the licence before release.</strong> The site does
+      not currently claim one, because the proposal keeps the pathway open. Once that decision is
+      made, say so plainly here and in the repository.</p>
+    </div>
+  </div>
+</section>
